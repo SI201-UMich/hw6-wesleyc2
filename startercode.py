@@ -125,10 +125,11 @@ def update_cache(breed_ids, cache_file):
             new_additions += 1
 
 
-        create_cache(cache, cache_file)
 
-        percentage = (new_additions / total_ids) * 100
-        return f"Cached data for {percentage}% of breeds"
+    create_cache(cache, cache_file)
+
+    percentage = (new_additions / total_ids) * 100
+    return f"Cached data for {percentage}% of breeds"
 
     pass
 
@@ -184,7 +185,7 @@ def get_groups_above_cutoff(cutoff, cache_file):
     RETURNS:
         A dictionary {group_uuid: count} for groups with count >= cutoff only.
     """
-    cache = load+json(cache_file)
+    cache = load_json(cache_file)
     group_counts = {}
 
     for url, breed_data in cache.items():
