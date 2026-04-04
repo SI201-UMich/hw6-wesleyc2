@@ -1,14 +1,14 @@
 # SI 201 HW6 (APIs, JSON, and Caching)
-# Your name:
-# Your student id:
-# Your email:
+# Your name: Wesley Chan
+# Your student id: 78133291
+# Your email: wesleycc@umich.edu
 # Who or what you worked with on this homework (including generative AI like ChatGPT):
 # If you worked with generative AI also add a statement for how you used it.
-# e.g.:
+# e.g.: I used Gen AI to point me in certain directions with hints/questions when I was struggling
 # Asked ChatGPT for help debugging and understanding the JSON structure
-#
+#Yes
 # Did your use of GenAI on this assignment align with your goals and guidelines in your Gen AI contract? If not, why?
-#
+#Yes
 # --- ARGUMENTS & EXPECTED RETURN VALUES PROVIDED --- #
 # --- SEE INSTRUCTIONS FOR FULL DETAILS ON METHOD IMPLEMENTATION --- #
 
@@ -222,6 +222,50 @@ def recommend_breeds_in_same_group(breed_name, cache_file):
             "No group information available for '{breed_name}'."  (no group id)
             "No recommendations found based on '{breed_name}'."  (no other breeds in that group)
     """
+    cache = load_json(cache_file)
+
+    if not cache: 
+        return "No breed data found in cache."
+    
+    target_group_id = None
+    found_breed = False
+
+    for url, breed_data in cache.items():
+        try: 
+            name = breed_data["data"]["attributes"]["name"]
+            if name.lower() == breed_name.lower():
+                found_breed = True
+                target_group_id = breed_data["data"]["relationships"]["group"]["data"]["id"]
+                break
+
+        except (KeyError, TypeError):
+            continue
+
+    if not found_breed:
+        return f"'{breed_name}' is not in the cache."
+    
+    if not target_group_id:
+        return f"No group information available for '{breed_name}'."
+    
+    recommendations = []
+    for url, breed_data in cache.items():
+        try:
+            name = breed_data["data"]["attributes"]["name"]
+            group_id = breed_data["data"]["relationships"]["group"]["data"]["id"]
+
+            if group_id == target_group_id and name.lower() != breed_name.lower():
+                recommendations.append(name)
+
+        except (KeyError, TypeError):
+            continue
+
+    if not recommendations:
+        return f"No recommendations found based on '{breed_name}."
+    
+    return sorted(recommendations)
+
+
+    
 
 
 class TestHomeworkDogAPI(unittest.TestCase):
